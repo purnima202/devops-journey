@@ -1,0 +1,22 @@
+# .NET
+**/bin/
+**/obj/
+
+# Node.js
+**/node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# OS files
+.DS_Store
+Thumbs.db
