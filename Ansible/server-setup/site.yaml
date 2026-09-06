@@ -1,0 +1,8 @@
+---
+- name: server setup
+  hosts: all
+
+  roles:
+    - app
+
+
