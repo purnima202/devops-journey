@@ -1,0 +1,4 @@
+---
+- name: Restart Application
+  debug:
+    msg: "application would be resarted here"

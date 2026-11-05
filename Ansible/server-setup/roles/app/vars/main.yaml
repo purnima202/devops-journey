@@ -1,0 +1,5 @@
+---
+app_base: /tmp/myapp
+environment: production
+app_name: myapp
+app_port: 8080

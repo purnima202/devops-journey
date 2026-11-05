@@ -1,0 +1,25 @@
+---
+- name: Create application directory
+  file:
+    path: "{{app_base}}"
+    state: directory
+
+- name: Create application subdirectories
+  file:
+    path: "{{app_base}}/{{item}}"
+    state: directory
+  loop:
+   - logs
+   - config
+   - data
+
+- name: Display server uptime
+  debug:
+    var: uptime_result
+
+- name: Generate application configuration
+  template:
+    src: app.conf.j2
+    dest: "{{app_base}}/config/app.conf"
+  notify: Restart application
+
