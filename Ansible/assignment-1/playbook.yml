@@ -1,0 +1,80 @@
+---
+- name: Deploy Node.js App
+  hosts: webservers
+  become: yes
+
+  vars:
+    repo_url: "https://github.com/rat9615/simple-nodejs-app.git"
+    app_dir: "/opt/nodejs-app"
+    nodejs_version: "20"
+    app_user: "ubuntu"
+    app_port: "3000"
+
+  tasks:
+
+    - name: Install required dependencies
+      ansible.builtin.apt:
+        name:
+          - curl
+          - git
+          - ca-certificates
+        state: present
+        update_cache: yes
+
+    - name: Configure NodeSource repository
+      ansible.builtin.shell:
+        cmd: "curl -fsSL https://deb.nodesource.com/setup_{{ nodejs_version }}.x | bash -"
+
+    - name: Install Node.js
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+        update_cache: yes
+
+    - name: Create application directory
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+
+    - name: Clone Node.js application
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: HEAD
+        force: yes
+      become_user: "{{ app_user }}"
+
+    - name: Install application dependencies
+      ansible.builtin.command:
+        cmd: npm install
+        chdir: "{{ app_dir }}"
+      become_user: "{{ app_user }}"
+
+    - name: Create systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/nodejs-app.service
+        content: |
+          [Unit]
+          Description=Node.js Application
+          After=network.target
+
+          [Service]
+          Type=simple
+          User={{ app_user }}
+          WorkingDirectory={{ app_dir }}
+          Environment=PORT={{ app_port }}
+          ExecStart=/usr/bin/npm start
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Start Node.js application
+      ansible.builtin.systemd:
+        name: nodejs-app
+        daemon_reload: yes
+        enabled: yes
+        state: restarted
