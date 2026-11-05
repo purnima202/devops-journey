@@ -1,0 +1,11 @@
+# Node.js dependencies
+node_modules/
+
+# Test reports
+app/test-results/
+
+# Environment files
+.env
+
+# Jenkins local data
+jenkins-data/

@@ -1,0 +1,49 @@
+
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'NodeJS-20'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code...'
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('Jenkins/app') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                dir('Jenkins/app') {
+                    sh 'npm test'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: 'Jenkins/app/test-results/junit.xml'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('Jenkins/app') {
+                    sh 'npm pack --dry-run'
+                }
+                echo 'Build stage completed successfully!'
+            }
+        }
+    }
+}
